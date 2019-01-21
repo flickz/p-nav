@@ -1,12 +1,15 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import TopNav from "./components/navigation/others/TopNav"
+import PassionateNav from "./example/PassionateNavigaton"
+// import TopNav from "./components/TopNav"
+// import Menu from "./components/Menu"
+
 
 import "./styles.css";
 
 function App() {
   return (
-    <TopNav />
+    <PassionateNav />
   )
 }
 

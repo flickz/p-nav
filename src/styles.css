@@ -1,0 +1,8 @@
+body {
+  min-height: 100vh;
+  background-color: #8f8f8f;
+}
+p {
+  margin:0;
+  padding: 0;
+}

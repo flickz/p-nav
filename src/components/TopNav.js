@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import styled from 'styled-components'
 import { FiChevronDown, FiSearch, FiChevronRight } from 'react-icons/fi'
 
-import Logo from '../../util/logo';
+import Logo from './util/logo';
 
 const Header = styled.header`
   height: 70px;
@@ -32,9 +32,9 @@ const EndWrapper = styled.div`
 const Button = styled.button`
   background-color: #af2b1a;
   outline: none;
+  cursor: pointer;
   height: 36px;
   color: #fff;
-  cursor: pointer;
   border: none;
   font-weight: 700;
   border-radius: 3px;
@@ -44,6 +44,7 @@ const Button = styled.button`
 const DropDownButton = styled(Button)`
   display: flex;
   align-items: center;
+  cursor: pointer;
   justify-content: space-between;
   padding: 10px;
   :only-child {
@@ -113,6 +114,7 @@ const ExploreMenuWrapper = styled.div`
   box-shadow: 0 4px 16px rgba(20,23,28,0.25);
   position: absolute;
   top: 54px;
+  cursor: default;
   left: 20.5%;
   z-index: 10;
 `
@@ -194,6 +196,68 @@ const ExploreSubMenuWrapper = styled(ExploreMenuWrapper)`
   z-index: 15;
 `
 
+
+const SubMenuTitleWrapper = styled.div`
+`
+
+const SubMenuTitle = styled.p`
+  color: #545963;
+`
+const CategoryTitleWrapper = styled(SubMenuTitleWrapper)`
+  height: 30px;
+  margin-left: 20px;
+  margin-right: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`
+
+const CategoryTitle = styled.span`
+  color: #545963;
+`
+const ViewAllLinkWrapper = styled.span`
+  
+`
+
+const ViewAllLink = styled(Link)`
+  padding: 0;
+  font-size: 13.5px;
+  text-decoration: underline;
+`
+
+const CourseSubMenuWrapper = styled(ExploreSubMenuWrapper)`
+  background-color: #F7F8FA;
+`
+const ScrollableMenuItemWrapper = styled(MenuItemWrapper)`
+  overflow-y: auto;
+  min-height: 350px;
+`
+const CourseListWrapper = styled(ListItemWrapper)`
+  min-height: 70px;
+  margin-top: 10px;
+`  
+
+const CourseLink = styled(Link)`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`
+const CoursePlaceImagePlaceHolder = styled.span`
+  height: 100%;
+  width: 10%;
+  box-sizing: border-box;
+  background-color: #af2b1a;
+`
+const CourseInformation = styled.span`
+  height: 100%;
+  width: 100%;
+  box-sizing: content-box;
+  text-align: right;
+`
+const CourseAuthorName = styled.span`
+  color: #af2b1a;
+`
+
 const verticals = [
   {
     Id: 1,
@@ -242,7 +306,9 @@ export default class TopNav extends Component {
   state = {
     menuIsOpen: false,
     verticalExpanded: false,
-    expandedVerticalCategories: []
+    categoryExpanded: false,
+    selectedVertical: {},
+    selectedCategeory: {}
   }
 
   handleExploreMouseHover = () => {
@@ -251,39 +317,122 @@ export default class TopNav extends Component {
     }))
   }
 
-  handleMouseEnterVertical (categories, event) {
-    console.log(categories)
+  handleMouseEnterVertical (vertical, event) {
     this.setState({
       verticalExpanded: true,
+      selectedVertical: vertical
     })
   }
 
   handleMouseLeaveVertical (categories, event) {
     this.setState({
-      verticalExpanded: false,
-      categories: []
+      verticalExpanded: false
     })
   }
 
+  handleMouseEnterCategory (category, event) {
+    this.setState({
+      categoryExpanded: true,
+      selectedCategeory: category
+    })
+  }
+
+  handleMouseLeaveCategory (category, event) {
+    this.setState({
+      categoryExpanded: false
+    })
+  }
+
+  renderCourseSubMenu () {
+    const { selectedCategeory, categoryExpanded } = this.state
+    const courses = this.fetchCourses(selectedCategeory.Id) || []
+    if (categoryExpanded && courses.length !== 0) {
+      return (
+        <CourseSubMenuWrapper>
+          <ScrollableMenuItemWrapper>
+            <CategoryTitleWrapper>
+              <CategoryTitle>{selectedCategeory.Name}</CategoryTitle>
+              <ViewAllLinkWrapper>
+                <ViewAllLink href="#">View All</ViewAllLink>
+              </ViewAllLinkWrapper>
+            </CategoryTitleWrapper>
+            {courses.map(course => {
+              return (
+                <MenuItem key={course.Id}>
+                  <CourseListWrapper>
+                    <CourseLink href="#" >
+                      <CoursePlaceImagePlaceHolder />
+                      <CourseInformation>
+                        <p>{course.Name}</p>
+                        <CourseAuthorName>- {course.Author}</CourseAuthorName>
+                      </CourseInformation>
+                    </CourseLink>
+                  </CourseListWrapper>
+                </MenuItem>
+              )
+            })}
+          </ScrollableMenuItemWrapper>        
+        </CourseSubMenuWrapper>
+      )
+    }
+  }
+
+  fetchCourses (categoryId) {
+    return JSON.parse(`[
+      {
+        "Id": "1",
+        "Name": "Loose the Gutt, keep the Butt",
+        "Author": "Anowa",
+        "Categories": "1",
+        "State": "active"
+      },
+      {
+        "Id": "2",
+        "Name": "BrittneBabe Fitness Transformation",
+        "Author": "Brittnebabe",
+        "Categories": "1",
+        "State": "active"
+      },
+      {
+        "Id": "3",
+        "Name": "BTX: Body Transformation Extreme",
+        "Author": "Barstarzz",
+        "Categories": "2",
+        "State": "active"
+      },
+      {
+        "Id": "4",
+        "Name": "Facebook Funnel Marketing",
+        "Author": "Russell Brunson",
+        "Categories": "2",
+        "State": "active"
+      }
+    ]`)
+  }
+
   renderExploreSubMenu () {
-    const { verticalExpanded } = this.state;
-    const categories = verticals[0].categories;
-    if (verticalExpanded) {
+    const { verticalExpanded, selectedVertical, selectedCategeory } = this.state;
+    const categories = selectedVertical.categories
+    if (verticalExpanded && categories.length !== 0) {
       return (
         <ExploreSubMenuWrapper>
           <MenuItemWrapper>
+            <SubMenuTitleWrapper>
+              <SubMenuTitle>{selectedVertical.Name}</SubMenuTitle>
+            </SubMenuTitleWrapper>
             {categories.map((category) => {
               return (
-                <MenuItem key={category.Id}>
+                <MenuItem 
+                  key={category.Id}
+                  onMouseEnter={this.handleMouseEnterCategory.bind(this, category)}
+                  onMouseLeave={this.handleMouseLeaveCategory.bind(this, category)}  
+                >
                   <ListItemWrapper>
-                    <Link 
-                      href="#" 
-                      // onMouseEnter={this.handleMouseEnterVertical.bind(this, vertical.Id)}
-                      // onMouseLeave={this.handleMouseLeaveVertical.bind(this, vertical.Id)}
-                    >
+                    <Link href="#">
                       {category.Name}
                       <FiChevronRight style={iconStyles}/>
                     </Link>
+                    {selectedCategeory.Id === category.Id && this.renderCourseSubMenu()}
                   </ListItemWrapper>
                 </MenuItem>
               )
@@ -295,7 +444,8 @@ export default class TopNav extends Component {
   }
 
   renderExploreMenu () {
-    if (this.state.menuIsOpen) {
+    const { menuIsOpen, selectedVertical } = this.state;
+    if (menuIsOpen) {
       return (
         <ExploreMenuWrapper>
           <MenuItemWrapper>
@@ -303,8 +453,8 @@ export default class TopNav extends Component {
               return (
                 <MenuItem 
                   key={vertical.Id}
-                  onMouseEnter={this.handleMouseEnterVertical.bind(this, vertical.categories)}
-                  onMouseLeave={this.handleMouseLeaveVertical.bind(this, vertical.categories)}  
+                  onMouseEnter={this.handleMouseEnterVertical.bind(this, vertical)}
+                  onMouseLeave={this.handleMouseLeaveVertical.bind(this, vertical)}  
                 >
                   <ListItemWrapper >
                     <Link 
@@ -314,7 +464,9 @@ export default class TopNav extends Component {
                       {/* Don't show expandable arrow when categories is zero */}
                       {vertical.categories.length !== 0 && <FiChevronRight style={iconStyles}/>}
                     </Link>
-                    {this.renderExploreSubMenu()}
+                    <div>
+                      {selectedVertical.Id === vertical.Id && this.renderExploreSubMenu()}
+                    </div>
                   </ListItemWrapper>
                 </MenuItem>
               )
@@ -337,7 +489,9 @@ export default class TopNav extends Component {
           <DropDownButton onMouseEnter={this.handleExploreMouseHover} onMouseLeave={this.handleExploreMouseHover}>
             Explore
             <FiChevronDown style={iconStyles} />
-            {this.renderExploreMenu()}
+            <div>
+              {this.renderExploreMenu()}
+            </div>
           </DropDownButton>
           <TopSearchInputWrapper>
             <SearchInput type="text" placeholder="Search for courses"/>
